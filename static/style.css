@@ -1,0 +1,74 @@
+/* CORES */
+:root {
+    --preto: #000000;
+    --branco: #FFFFFF;
+    --vermelho: #FF0000;
+    --vermelho-claro: #FF6666;
+    --amarelo: #FFD700;
+    --amarelo-escuro: #CCAA00;
+    --dourado: #FFD700;
+}
+
+/* Geral */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    transition: all 0.3s;
+}
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+button {
+    margin: 10px;
+    padding: 15px 25px;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+/* Modo escuro */
+body.dark-mode {
+    background-color: var(--preto);
+    color: var(--branco);
+}
+
+body.dark-mode button {
+    color: var(--branco);
+    background-color: var(--dourado);
+}
+
+body.dark-mode button:hover {
+    background-color: var(--vermelho);
+    color: var(--branco);
+}
+
+/* Modo claro */
+body.light-mode {
+    background-color: var(--branco);
+    color: var(--preto);
+}
+
+body.light-mode button {
+    color: var(--preto);
+    background-color: var(--dourado);
+}
+
+body.light-mode button:hover {
+    background-color: var(--vermelho-claro);
+    color: var(--preto);
+}
+
+#resultado {
+    margin-top: 20px;
+    font-size: 18px;
+}

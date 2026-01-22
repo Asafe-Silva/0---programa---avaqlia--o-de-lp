@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registo de Cliques</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dark-mode">
+    <div class="container">
+        <h1>Registo de Cliques</h1>
+        <div class="botoes">
+            <button onclick="clicar('Botão 1')">Botão 1</button>
+            <button onclick="clicar('Botão 2')">Botão 2</button>
+            <button onclick="clicar('Botão 3')">Botão 3</button>
+            <button onclick="clicar('Botão 4')">Botão 4</button>
+        </div>
+        <div id="resultado"></div>
+        <button id="toggleMode">Mudar Modo</button>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

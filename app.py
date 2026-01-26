@@ -38,10 +38,10 @@ init_db()
 def index():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("SELECT nome FROM botoes ORDER BY id")
-    nomes = [row[0] for row in c.fetchall()]
+    c.execute("SELECT id, nome FROM botoes ORDER BY id")
+    botoes = c.fetchall()
     conn.close()
-    return render_template('index.html', botoes=nomes)
+    return render_template('index.html', botoes=botoes)
 
 @app.route('/admin')
 def admin():
@@ -64,6 +64,66 @@ def update_button():
     conn.commit()
     conn.close()
     return jsonify({'status': 'success'})
+
+
+@app.route('/stats')
+def stats():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT id, nome FROM botoes ORDER BY id")
+    botoes = c.fetchall()
+    resultado = []
+    hoje = datetime.now().strftime('%Y-%m-%d')
+    for b in botoes:
+        bid, nome = b[0], b[1]
+        c.execute("SELECT COUNT(*) FROM cliques WHERE botao = ? AND data = ?", (nome, hoje))
+        hoje_qt = c.fetchone()[0]
+        c.execute("SELECT COUNT(*) FROM cliques WHERE botao = ?", (nome,))
+        total_qt = c.fetchone()[0]
+        resultado.append({'id': bid, 'nome': nome, 'hoje': hoje_qt, 'total': total_qt})
+    conn.close()
+    return jsonify(resultado)
+
+
+@app.route('/admin/add_button', methods=['POST'])
+def add_button():
+    nome = request.json.get('nome')
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT COALESCE(MAX(id),0)+1 FROM botoes")
+    new_id = c.fetchone()[0]
+    c.execute("INSERT INTO botoes (id, nome) VALUES (?, ?)", (new_id, nome))
+    conn.commit()
+    conn.close()
+    return jsonify({'status': 'success', 'id': new_id, 'nome': nome})
+
+
+@app.route('/admin/delete_button', methods=['POST'])
+def delete_button():
+    btn_id = request.json.get('id')
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("DELETE FROM botoes WHERE id = ?", (btn_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({'status': 'success'})
+
+
+@app.route('/admin/export_csv')
+def export_csv():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT id, botao, sequencial, data, hora FROM cliques ORDER BY id ASC")
+    cliques = c.fetchall()
+    conn.close()
+    import csv, io
+    si = io.StringIO()
+    writer = csv.writer(si)
+    writer.writerow(['ID', 'Botao', 'Sequencial', 'Data', 'Hora'])
+    for row in cliques:
+        writer.writerow(row)
+    from flask import Response
+    return Response(si.getvalue(), mimetype='text/csv', headers={"Content-disposition": "attachment; filename=registros.csv"})
 
 @app.route('/admin/export')
 def export_data():

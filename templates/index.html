@@ -10,8 +10,11 @@
     <div class="container">
         <h1>Registo de Cliques</h1>
         <div class="botoes">
-            {% for nome in botoes %}
-            <button onclick="clicar('{{ nome }}')">{{ nome }}</button>
+            {% for btn in botoes %}
+            <button class="botao-card" data-id="{{ btn[0] }}" data-name="{{ btn[1] }}" onclick="clicar({{ btn[0] }}, '{{ btn[1] }}')">
+                <span class="label">{{ btn[1] }}</span>
+                <span class="badge">0</span>
+            </button>
             {% endfor %}
         </div>
         <div id="resultado"></div>

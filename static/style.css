@@ -52,6 +52,31 @@ h1 {
     margin-bottom: 40px;
 }
 
+.botao-card {
+    position: relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+}
+
+.botao-card .label {
+    display:block;
+}
+
+.badge {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: var(--vermelho-primario);
+    color: white;
+    font-size: 12px;
+    padding: 6px 8px;
+    border-radius: 999px;
+    font-weight:700;
+}
+
 button {
     padding: 24px;
     font-size: 16px;

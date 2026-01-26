@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-section {
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border-vermelho);
+        }
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-vermelho);
+            background: transparent;
+            color: inherit;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(230, 57, 70, 0.1);
+        }
+        .export-btn {
+            background: var(--vermelho-primario);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="container" style="max-width: 800px;">
+        <h1>Painel Administrativo</h1>
+        
+        <div class="admin-section">
+            <h2>Configuração dos Botões</h2>
+            {% for btn in botoes %}
+            <div class="config-grid">
+                <input type="text" id="name-{{ btn[0] }}" value="{{ btn[1] }}">
+                <button onclick="updateButton({{ btn[0] }})" style="padding: 10px 20px; font-size: 12px;">Salvar</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="admin-section">
+            <h2>Registros Recentes</h2>
+            <a href="/admin/export" class="export-btn">Baixar TXT</a>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Botão</th>
+                            <th>Seq</th>
+                            <th>Data</th>
+                            <th>Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in cliques %}
+                        <tr>
+                            <td>{{ log[0] }}</td>
+                            <td>{{ log[1] }}</td>
+                            <td>{{ log[2] }}</td>
+                            <td>{{ log[3] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <a href="/" id="toggleMode">Voltar para Home</a>
+    </div>
+
+    <script>
+        async function updateButton(id) {
+            const nome = document.getElementById(`name-${id}`).value;
+            const response = await fetch('/admin/update_button', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id, nome })
+            });
+            if (response.ok) {
+                alert('Nome do botão atualizado!');
+            }
+        }
+    </script>
+</body>
+</html>

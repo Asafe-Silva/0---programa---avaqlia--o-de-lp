@@ -33,11 +33,13 @@ async function clicar(botao) {
             </div>
         `;
 
-        // Atualiza badge
-        if (btn) {
-            const badge = btn.querySelector('.badge');
-            if (badge) badge.textContent = data.sequencial;
+        // Atualiza área de contadores (abaixo dos botões)
+        const counts = document.getElementById('counts');
+        if (counts) {
+            counts.innerHTML = `Registro adicionado: <strong>${data.botao}</strong> — Clique do dia: <strong>${data.sequencial}</strong>`;
         }
+        // atualizar contagens detalhadas
+        fetchStats();
     } catch (err) {
         alert('Erro ao registrar clique. Tente novamente.');
         console.error(err);
@@ -74,13 +76,16 @@ async function fetchStats() {
     try {
         const res = await fetch('/stats');
         const dados = await res.json();
+        const counts = document.getElementById('counts');
+        if (counts) {
+            // construir lista simples de contadores por botão
+            counts.innerHTML = dados.map(b => `
+                <div class="count-item"><strong>${b.nome}</strong>: Hoje ${b.hoje} — Total ${b.total}</div>
+            `).join('');
+        }
         dados.forEach(b => {
             const btn = document.querySelector(`button[data-id="${b.id}"]`);
-            if (btn) {
-                const badge = btn.querySelector('.badge');
-                if (badge) badge.textContent = b.hoje;
-                btn.title = `${b.nome} — Hoje: ${b.hoje} / Total: ${b.total}`;
-            }
+            if (btn) btn.title = `${b.nome} — Hoje: ${b.hoje} / Total: ${b.total}`;
         });
     } catch (e) {
         console.error('Falha ao buscar estatísticas', e);

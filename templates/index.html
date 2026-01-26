@@ -13,10 +13,10 @@
             {% for btn in botoes %}
             <button class="botao-card" data-id="{{ btn[0] }}" data-name="{{ btn[1] }}" onclick="clicar({{ btn[0] }}, '{{ btn[1] }}')">
                 <span class="label">{{ btn[1] }}</span>
-                <span class="badge">0</span>
             </button>
             {% endfor %}
         </div>
+        <div id="counts" class="counts" aria-live="polite">Carregando contadores...</div>
         <div id="resultado"></div>
         <button id="toggleMode">Mudar Modo</button>
     </div>

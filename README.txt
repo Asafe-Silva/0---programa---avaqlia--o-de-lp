@@ -97,6 +97,39 @@ Próximos passos sugeridos
 - Adicionar autenticação ao painel admin.
 - Criar `requirements.txt` com `flask` para facilitar a instalação.
 
+Salvar o arquivo de banco (`database.db`) no Git
+-----------------------------------------------
+
+É possível fazer com que o arquivo `database.db` seja adicionado/commitado automaticamente ao repositório Git sempre que houver um novo registro.
+
+Como foi implementado neste projeto:
+
+- O `app.py` inclui duas variáveis de configuração no topo do arquivo:
+	- `ENABLE_GIT_COMMIT` (True/False) — quando `True`, o app executa `git add` e `git commit` do arquivo `database.db` depois de cada inserção.
+	- `GIT_PUSH` (True/False) — quando `True`, o app tenta também executar `git push` (requer configuração do remoto e credenciais).
+
+Avisos importantes e melhores práticas:
+
+- Commit automático de um arquivo SQLite não é recomendado para colaboração ativa. O arquivo é binário e alterações frequentes podem causar conflitos, histórico grande e problemas de merge.
+- Se usar esse recurso, prefira apenas commitar localmente e manter o `push` manual (ou configurar um fluxo seguro de CI/CD).
+- Verifique se não há uma entrada em `.gitignore` que impeça `database.db` de ser rastreado. Se houver, remova a linha correspondente.
+- Em ambientes multi-usuário, prefira uma base de dados centralizada (Postgres, MySQL, etc.) em vez de compartilhar um arquivo SQLite via Git.
+
+Como ativar (passos rápidos):
+
+1. Abra `app.py` e confirme as variáveis no topo: `ENABLE_GIT_COMMIT = True` e `GIT_PUSH = False`.
+2. Garanta que o repositório Git local exista e que `database.db` esteja sendo rastreado (remova entradas em `.gitignore` se necessário):
+
+```powershell
+git init
+git add database.db
+git commit -m "Adicionar database.db ao repositório"
+```
+
+3. Se quiser que o app faça `git push` automaticamente, configure `GIT_PUSH = True` e certifique-se de que o repositório remoto esteja configurado e que as credenciais estejam disponíveis no ambiente (ssh key, credential helper, token, etc.).
+
+4. Reinicie a aplicação. A cada clique o app tentará criar um commit com a mensagem automática (caso não haja mudanças relevantes, o commit poderá falhar sem interromper o app).
+
 Autor: Asafe Fagundes Bragança e Silva
 -----
 Desenvolvido como projeto das disciplinas de ATD e LP.

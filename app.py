@@ -1,9 +1,18 @@
 from flask import Flask, render_template, request, jsonify
 import sqlite3
 from datetime import datetime
+import subprocess
+import os
+import shutil
 
 app = Flask(__name__)
 DB_PATH = 'database.db'
+# Git auto-commit settings
+# WARNING: committing a SQLite file into git on every write can cause repository bloat
+# and merge conflicts. Use with caution. By default commits are enabled but push is disabled.
+ENABLE_GIT_COMMIT = True
+GIT_PUSH = False
+GIT_REPO_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Inicializa o banco
 def init_db():
@@ -167,6 +176,29 @@ def clicar():
     )
     conn.commit()
     conn.close()
+
+    # opcional: commitar o arquivo de banco no repositório git local
+    if ENABLE_GIT_COMMIT:
+        try:
+            git_exe = shutil.which('git') if 'shutil' in globals() else None
+        except Exception:
+            git_exe = None
+
+        # fallback: assume git is in PATH
+        if git_exe is None:
+            git_exe = 'git'
+
+        commit_msg = f"Registro: {botao} seq:{sequencial} {data_str} {hora_str}"
+        try:
+            # git add
+            subprocess.run([git_exe, 'add', DB_PATH], cwd=GIT_REPO_PATH, check=False)
+            # git commit (allow empty when no changes)
+            subprocess.run([git_exe, 'commit', '-m', commit_msg, '--', DB_PATH], cwd=GIT_REPO_PATH, check=False)
+            if GIT_PUSH:
+                subprocess.run([git_exe, 'push'], cwd=GIT_REPO_PATH, check=False)
+        except Exception as e:
+            # não interrompe o fluxo; apenas loga
+            print('Git auto-commit falhou:', e)
 
     return jsonify({
         'botao': botao,

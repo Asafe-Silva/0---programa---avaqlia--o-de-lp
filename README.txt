@@ -1,63 +1,102 @@
 Registo de Cliques com Data e Hora
 ==================================
-
-Descrição do Programa
---------------------
-Este programa é uma aplicação web simples que permite registar cliques em quatro botões diferentes. 
-Cada clique é guardado numa base de dados SQLite com:
-
-- Nome do botão clicado
-- Número sequencial do clique (reinicia a cada dia)
-- Data do clique
-- Hora do clique (horas e minutos)
-
-Além disso, o site possui dois modos de visualização:
-
-1. Modo escuro (padrão) – fundo preto, letras brancas, botões dourados, com vermelho nos hovers.
-2. Modo claro – fundo branco, letras pretas, botões dourados, vermelho mais claro nos hovers, amarelo mais escuro.
-
----
-
-Como Usar
+Descrição
 ---------
+Este projeto é uma aplicação web simples para registar cliques em botões. Cada clique é salvo em uma base de dados SQLite com as seguintes informações:
 
-1. Execute o programa:
+- `botao`: nome do botão clicado
+- `sequencial`: número sequencial do clique (reinicia a cada dia)
+- `data`: data do clique (YYYY-MM-DD)
+- `hora`: hora do clique (HH:MM)
 
-   - Certifique-se de ter o Python instalado.
-   - Instale o Flask com o comando:
-     pip install -r requirements.txt
-   - Execute o arquivo `app.py`:
-     python app.py
+O front-end inclui um modo escuro (padrão) e um modo claro, e exibe um pequeno cartão com os detalhes do último clique. Há também um painel administrativo para editar, adicionar ou remover botões e exportar os registros.
 
-2. Abra o navegador e aceda ao endereço indicado no terminal (ex.: http://0.0.0.0:3000 ou http://127.0.0.1:3000).
+Estrutura do projeto
+--------------------
 
-3. Na página web:
-   - Clique em qualquer um dos quatro botões para registar um clique.
-   - O número sequencial, data e hora aparecerão imediatamente abaixo dos botões.
-   - Para alternar entre modo escuro e claro, clique no botão "Mudar Modo".
+- `app.py` — aplicação Flask, rotas e lógica da base de dados
+- `database.db` — arquivo SQLite (criado automaticamente na raiz do projeto)
+- `templates/` — templates Jinja: `index.html`, `admin.html`
+- `static/` — arquivos estáticos: `style.css`, `script.js`
+- `README.txt` — este ficheiro
 
-4. Cada clique é automaticamente guardado na base de dados `database.db`.
+Onde fica a base de dados
+-------------------------
 
----
+A base de dados SQLite chama-se `database.db` e fica na raiz do projeto (mesmo nível de `app.py`). O arquivo é criado automaticamente quando a aplicação é executada pela primeira vez, pela função `init_db()` em `app.py`.
 
-Detalhes Técnicos
------------------
-- Front-end: HTML, CSS, JavaScript
-- Back-end: Python + Flask
-- Base de dados: SQLite
-- Contador diário: Reinicia automaticamente a cada novo dia
-- Registro persistente: O registo dos cliques mantém-se mesmo após atualizar a página.
+Requisitos
+----------
 
----
+- Python 3.8+ (recomendado)
+- Flask
 
-Notas
------
-- Certifique-se de não apagar o arquivo `database.db` se quiser manter o histórico dos cliques.
-- O modo claro e escuro altera apenas a visualização; os dados guardados permanecem iguais.
-- É compatível com computadores, tablets e smartphones.
+Instalação rápida (Windows)
+--------------------------
 
----
+1. Abra o PowerShell na pasta do projeto.
+2. (Opcional) crie e ative um ambiente virtual:
 
-Autor
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+3. Instale o Flask:
+
+```powershell
+pip install flask
+```
+
+Como executar
+-------------
+
+Na pasta do projeto, execute:
+
+```powershell
+python app.py
+```
+
+Por padrão a aplicação roda em `host='0.0.0.0'` e `port=5000` (veja o terminal para o endereço exato). Então abra no navegador:
+
+- Página principal: http://127.0.0.1:5000/
+- Painel administrativo: http://127.0.0.1:5000/admin
+
+Funcionalidades importantes
+--------------------------
+
+- Registro de cliques: cada clique salva nome do botão, número sequencial do dia, data e hora.
+- Contador diário: o campo `sequencial` reinicia automaticamente a cada novo dia.
+- Painel admin: permite editar nomes de botões, adicionar novos botões, remover botões e baixar os registros em CSV.
+- Estatísticas rápidas: a rota `/stats` devolve contagens por botão (hoje e total) e é usada pelo front-end para mostrar badges.
+- Exportar: `/admin/export` gera um TXT; `/admin/export_csv` gera CSV com todos os registros.
+
+Notas de implementação
+---------------------
+
+- O arquivo `app.py` contém a lógica de criação das tabelas `cliques` e `botoes` (função `init_db`). Se `botoes` estiver vazio, algumas entradas iniciais são inseridas (Botão 1..4).
+- O tema (modo escuro/claro) é salvo no `localStorage` do navegador para persistência por usuário.
+- Ao remover um botão via admin, os registros antigos desse botão permanecem na tabela `cliques` (não são removidos automaticamente). Se desejar limpar os registros relacionados, é possível estender a rota de remoção para também apagar `cliques` com o mesmo nome.
+
+Segurança e deploy
+------------------
+
+- Em ambiente de produção, desative `debug=True` e considere usar um servidor WSGI (uWSGI, Gunicorn) e um proxy reverso (NGINX).
+- Para proteger o painel admin pode-se adicionar autenticação (Flask-Login ou outra solução simples).
+
+Problemas comuns
+----------------
+
+- Se a aplicação não criar o `database.db`, verifique permissões de escrita na pasta do projeto.
+- Se algum botão não aparecer, acesse o painel admin para verificar a tabela `botoes`.
+
+Próximos passos sugeridos
+------------------------
+
+- Adicionar paginação e filtros no painel de registros.
+- Adicionar autenticação ao painel admin.
+- Criar `requirements.txt` com `flask` para facilitar a instalação.
+
+Autor: Asafe Fagundes Bragança e Silva
 -----
 Desenvolvido como projeto das disciplinas de ATD e LP.

@@ -75,6 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const toBottom = document.getElementById('toBottomBtn');
     if (toTop) toTop.addEventListener('click', scrollToTop);
     if (toBottom) toBottom.addEventListener('click', scrollToBottom);
+    // Admin: bind add/update/delete buttons if present
+    const addBtn = document.getElementById('add-button');
+    if (addBtn) addBtn.addEventListener('click', addButton);
+    document.querySelectorAll('.btn-update').forEach(b => b.addEventListener('click', () => updateButton(b.dataset.id)));
+    document.querySelectorAll('.btn-delete').forEach(b => b.addEventListener('click', () => deleteButton(b.dataset.id)));
 });
 
 async function fetchStats() {
@@ -103,4 +108,73 @@ function scrollToTop() {
 
 function scrollToBottom() {
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+}
+
+// Admin: funções para adicionar/atualizar/remover botões
+async function updateButton(id) {
+    try {
+        const nome = document.getElementById(`name-${id}`).value;
+        if (!nome || !nome.trim()) return alert('Informe um nome válido');
+        const res = await fetch('/admin/update_button', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id: id, nome: nome })
+        });
+        if (res.ok) {
+            alert('Nome do botão atualizado!');
+            location.reload();
+        } else {
+            const txt = await res.text();
+            console.error('updateButton error', txt);
+            alert('Falha ao atualizar o botão');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Erro ao atualizar botão');
+    }
+}
+
+async function addButton() {
+    try {
+        const el = document.getElementById('new-button-name');
+        if (!el) return alert('Campo de nome não encontrado');
+        const nome = el.value.trim();
+        if (!nome) return alert('Informe um nome válido');
+        const res = await fetch('/admin/add_button', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ nome: nome })
+        });
+        if (res.ok) {
+            alert('Botão adicionado');
+            location.reload();
+        } else {
+            console.error('addButton failed', await res.text());
+            alert('Falha ao adicionar botão');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Erro ao adicionar botão');
+    }
+}
+
+async function deleteButton(id) {
+    try {
+        if (!confirm('Remover este botão?')) return;
+        const res = await fetch('/admin/delete_button', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id: id })
+        });
+        if (res.ok) {
+            alert('Botão removido');
+            location.reload();
+        } else {
+            console.error('deleteButton failed', await res.text());
+            alert('Falha ao remover botão');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Erro ao remover botão');
+    }
 }

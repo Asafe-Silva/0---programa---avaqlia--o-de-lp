@@ -59,14 +59,14 @@
             <h2>Configuração dos Botões</h2>
             <div style="display:flex; gap:10px; margin-bottom:16px; align-items:center;">
                 <input type="text" id="new-button-name" placeholder="Novo nome do botão" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--border-vermelho); background:transparent; color:inherit;">
-                <button onclick="addButton()" style="padding:10px 16px; border-radius:10px;">Adicionar</button>
+                <button id="add-button" style="padding:10px 16px; border-radius:10px;">Adicionar</button>
             </div>
             {% for btn in botoes %}
             <div class="config-grid">
                 <input type="text" id="name-{{ btn[0] }}" value="{{ btn[1] }}">
                 <div style="display:flex; gap:8px; align-items:center;">
-                    <button onclick="updateButton({{ btn[0] }})" style="padding: 10px 20px; font-size: 12px;">Salvar</button>
-                    <button onclick="deleteButton({{ btn[0] }})" style="padding: 10px; font-size: 12px; background:#7f1d1d; color:white; border-radius:8px;">Remover</button>
+                    <button class="btn-update" data-id="{{ btn[0] }}" style="padding: 10px 20px; font-size: 12px;">Salvar</button>
+                    <button class="btn-delete" data-id="{{ btn[0] }}" style="padding: 10px; font-size: 12px; background:#7f1d1d; color:white; border-radius:8px;">Remover</button>
                 </div>
             </div>
             {% endfor %}

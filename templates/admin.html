@@ -100,6 +100,26 @@
             </div>
         </div>
 
+        <div class="admin-section">
+            <h2>Visualização por Dia</h2>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
+                <input type="date" id="filter-date" value="">
+                <button onclick="loadDay()" style="padding:8px 12px; border-radius:8px;">Carregar</button>
+                <a id="download-json" href="#" style="margin-left:8px;">Baixar JSON</a>
+            </div>
+
+            <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:space-between;">
+                <div style="flex:1; min-width:260px;">
+                    <h3>Gráfico diário (linhas)</h3>
+                    <canvas id="dailyChart" width="400" height="200"></canvas>
+                </div>
+                <div style="width:320px; min-width:260px;">
+                    <h3>Porcentagem de cliques (pizza)</h3>
+                    <canvas id="pieChart" width="300" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
         <a href="/" id="toggleMode">Voltar para Home</a>
     </div>
 
@@ -128,6 +148,56 @@
             if (!confirm('Remover este botão?')) return;
             const res = await fetch('/admin/delete_button', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id})});
             if (res.ok) { alert('Botão removido'); location.reload(); }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Inicializa data input com hoje
+        document.addEventListener('DOMContentLoaded', () => {
+            const d = new Date();
+            const today = d.toISOString().slice(0,10);
+            const el = document.getElementById('filter-date');
+            if (el) el.value = today;
+            loadDay();
+        });
+
+        let dailyChartInstance = null;
+        let pieChartInstance = null;
+
+        async function loadDay() {
+            const date = document.getElementById('filter-date').value;
+            const downloadLink = document.getElementById('download-json');
+            // try to get pre-generated file first
+            const resp = await fetch(`/api/daily_summary_file?date=${date}`);
+            const json = await resp.json();
+            if (downloadLink) {
+                downloadLink.href = `/static/data/daily_summary_${date}.json`;
+                downloadLink.download = `daily_summary_${date}.json`;
+            }
+
+            // preparar dados para chart
+            const labels = json.counts.map(c => c.nome);
+            const values = json.counts.map(c => c.count);
+            const colors = labels.map((_,i) => `hsl(${(i*70)%360} 80% 60%)`);
+
+            // daily (linha/simple) chart — aqui usamos os valores do dia selecionado
+            const ctx = document.getElementById('dailyChart').getContext('2d');
+            if (dailyChartInstance) dailyChartInstance.destroy();
+            dailyChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ label: `Cliques em ${json.date}`, data: values, backgroundColor: colors }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // pie chart
+            const ctx2 = document.getElementById('pieChart').getContext('2d');
+            if (pieChartInstance) pieChartInstance.destroy();
+            pieChartInstance = new Chart(ctx2, {
+                type: 'pie',
+                data: { labels: labels, datasets: [{ data: json.counts.map(c=>c.count), backgroundColor: colors }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
         }
     </script>
 </body>

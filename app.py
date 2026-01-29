@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
+import json
 import sqlite3
 from datetime import datetime
 import subprocess
@@ -92,6 +93,71 @@ def stats():
         resultado.append({'id': bid, 'nome': nome, 'hoje': hoje_qt, 'total': total_qt})
     conn.close()
     return jsonify(resultado)
+
+
+def get_counts_for_date(date_str):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT nome FROM botoes ORDER BY id")
+    botoes = [r[0] for r in c.fetchall()]
+    resultado = []
+    for nome in botoes:
+        c.execute("SELECT COUNT(*) FROM cliques WHERE botao = ? AND data = ?", (nome, date_str))
+        cnt = c.fetchone()[0]
+        resultado.append({'nome': nome, 'count': cnt})
+    conn.close()
+    return resultado
+
+
+@app.route('/api/counts_by_date')
+def api_counts_by_date():
+    date_str = request.args.get('date')
+    if not date_str:
+        date_str = datetime.now().strftime('%Y-%m-%d')
+    data = get_counts_for_date(date_str)
+    return jsonify({'date': date_str, 'counts': data})
+
+
+@app.route('/api/percentages')
+def api_percentages():
+    # If date provided, use that date, otherwise overall totals
+    date_str = request.args.get('date')
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT nome FROM botoes ORDER BY id")
+    botoes = [r[0] for r in c.fetchall()]
+    counts = []
+    total = 0
+    for nome in botoes:
+        if date_str:
+            c.execute("SELECT COUNT(*) FROM cliques WHERE botao = ? AND data = ?", (nome, date_str))
+        else:
+            c.execute("SELECT COUNT(*) FROM cliques WHERE botao = ?", (nome,))
+        cnt = c.fetchone()[0]
+        counts.append({'nome': nome, 'count': cnt})
+        total += cnt
+    conn.close()
+    # calculate percentages
+    for item in counts:
+        item['percent'] = round((item['count'] / total * 100) if total > 0 else 0, 1)
+    return jsonify({'date': date_str, 'total': total, 'data': counts})
+
+
+@app.route('/api/daily_summary_file')
+def api_daily_summary_file():
+    # serve pre-generated daily summary JSON if exists in static/data
+    date_str = request.args.get('date') or datetime.now().strftime('%Y-%m-%d')
+    fname = f"daily_summary_{date_str}.json"
+    data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'data')
+    file_path = os.path.join(data_dir, fname)
+    if os.path.exists(file_path):
+        return send_from_directory(data_dir, fname, mimetype='application/json')
+    # fallback: compute on the fly
+    counts = get_counts_for_date(date_str)
+    total = sum([c['count'] for c in counts])
+    for c in counts:
+        c['percent'] = round((c['count'] / total * 100) if total > 0 else 0, 1)
+    return jsonify({'date': date_str, 'total': total, 'counts': counts})
 
 
 @app.route('/admin/add_button', methods=['POST'])

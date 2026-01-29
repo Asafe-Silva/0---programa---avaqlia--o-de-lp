@@ -196,7 +196,14 @@ def export_csv():
     writer = csv.writer(si)
     writer.writerow(['ID', 'Botao', 'Sequencial', 'Data', 'Hora'])
     for row in cliques:
-        writer.writerow(row)
+        rid, botao, seq, data_db, hora = row
+        # format date for export as dd/mm/YYYY
+        try:
+            parts = data_db.split('-')
+            data_fmt = f"{parts[2]}/{parts[1]}/{parts[0]}"
+        except Exception:
+            data_fmt = data_db
+        writer.writerow([rid, botao, seq, data_fmt, hora])
     from flask import Response
     return Response(si.getvalue(), mimetype='text/csv', headers={"Content-disposition": "attachment; filename=registros.csv"})
 
@@ -211,7 +218,13 @@ def export_data():
     output = "ID | Botão | Seq | Data | Hora\n"
     output += "-" * 40 + "\n"
     for cliq in cliques:
-        output += f"{cliq[0]} | {cliq[1]} | {cliq[2]} | {cliq[3]} | {cliq[4]}\n"
+        rid, botao, seq, data_db, hora = cliq
+        try:
+            p = data_db.split('-')
+            data_fmt = f"{p[2]}/{p[1]}/{p[0]}"
+        except Exception:
+            data_fmt = data_db
+        output += f"{rid} | {botao} | {seq} | {data_fmt} | {hora}\n"
     
     from flask import Response
     return Response(
@@ -224,8 +237,11 @@ def export_data():
 def clicar():
     botao = request.json.get('botao')
     agora = datetime.now()
-    data_str = agora.strftime('%Y-%m-%d')
+    # store date in DB as ISO (YYYY-MM-DD) for consistent querying
+    data_db = agora.strftime('%Y-%m-%d')
     hora_str = agora.strftime('%H:%M')
+    # display date in dd/mm/YYYY for UI
+    data_display = agora.strftime('%d/%m/%Y')
 
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -238,7 +254,7 @@ def clicar():
     # insere no banco
     c.execute(
         "INSERT INTO cliques (botao, sequencial, data, hora) VALUES (?, ?, ?, ?)",
-        (botao, sequencial, data_str, hora_str)
+        (botao, sequencial, data_db, hora_str)
     )
     conn.commit()
     conn.close()
@@ -269,7 +285,7 @@ def clicar():
     return jsonify({
         'botao': botao,
         'sequencial': sequencial,
-        'data': data_str,
+        'data': data_display,
         'hora': hora_str
     })
 

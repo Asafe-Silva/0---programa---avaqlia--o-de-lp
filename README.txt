@@ -101,6 +101,76 @@ Próximos passos sugeridos
 - Adicionar autenticação ao painel admin.
 - Criar `requirements.txt` com `flask` para facilitar a instalação.
 
+Manipular `database.db` (avançado)
+----------------------------------
+Aviso: sempre faça um backup antes de alterar o banco diretamente. Execute os comandos abaixo na pasta do projeto.
+
+1) Fazer backup do banco:
+
+```powershell
+copy database.db database.db.bak
+```
+
+2) Abrir o banco com o cliente `sqlite3` (instale se necessário):
+
+```powershell
+sqlite3 database.db
+```
+
+Comandos úteis dentro do sqlite3:
+
+- Ver tabelas:
+	.tables
+- Mostrar esquema de uma tabela:
+	PRAGMA table_info(cliques);
+	PRAGMA table_info(botoes);
+- Ver primeiros 50 registros:
+	SELECT id, botao, sequencial, data, hora FROM cliques ORDER BY id DESC LIMIT 50;
+- Selecionar cliques de um botão específico (por nome):
+	SELECT * FROM cliques WHERE botao = 'Botão 2' ORDER BY id DESC;
+- Apagar registros de um dia específico (use com cuidado):
+	DELETE FROM cliques WHERE data = '2026-01-26';
+- Apagar todos os registros de um botão (não apaga a linha em `botoes`):
+	DELETE FROM cliques WHERE botao = 'Botão 3';
+- Atualizar nome de botão (atenção: registros antigos ainda terão o nome antigo; isso altera apenas a tabela `botoes`):
+	UPDATE botoes SET nome = 'Novo Nome' WHERE id = 2;
+- Atualizar registros antigos para um novo nome (busque e troque):
+	UPDATE cliques SET botao = 'Novo Nome' WHERE botao = 'Botão 2';
+
+3) Exportar resultados para CSV usando sqlite3:
+
+```powershell
+sqlite3 -header -csv database.db "SELECT id, botao, sequencial, data, hora FROM cliques;" > cliques.csv
+```
+
+4) Usar Python para operações mais complexas (exemplo: apagar todos os registros anteriores a uma data):
+
+```python
+import sqlite3
+from datetime import datetime
+
+db='database.db'
+conn=sqlite3.connect(db)
+c=conn.cursor()
+# apagar registros anteriores a 2025-12-01
+c.execute("DELETE FROM cliques WHERE data < ?", ('2025-12-01',))
+conn.commit()
+conn.close()
+```
+
+5) Restaurar backup se algo deu errado:
+
+```powershell
+copy /Y database.db.bak database.db
+```
+
+Boas práticas
+- Sempre fazer backup antes de operações destrutivas.
+- Prefira escrever scripts Python para operações repetitivas (mais seguro e reprodutível).
+- Se for renomear botões e quer manter histórico consistente, atualize primeiro a tabela `botoes` e depois, se necessário, atualize os registros da tabela `cliques` com `UPDATE`.
+
+Se quiser, eu posso gerar pequenos scripts Python prontos para: exportar filtros específicos, remover registros antigos por faixa de datas, ou renomear um botão e propagar a mudança nos registros antigos. Diga qual operação prefere automatizar.
+
 Salvar o arquivo de banco (`database.db`) no Git
 -----------------------------------------------
 

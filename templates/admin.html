@@ -91,7 +91,7 @@
                         <tr>
                             <td>{{ log[0] }}</td>
                             <td>{{ log[1] }}</td>
-                            <td>{{ log[2] }}</td>
+                            <td>{% set d = log[2].split('-') %}{{ d[2] }}/{{ d[1] }}/{{ d[0] }}</td>
                             <td>{{ log[3] }}</td>
                         </tr>
                         {% endfor %}

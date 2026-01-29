@@ -108,14 +108,18 @@
                 <a id="download-json" href="#" style="margin-left:8px;">Baixar JSON</a>
             </div>
 
-            <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:space-between;">
-                <div style="flex:1; min-width:260px;">
-                    <h3>Gráfico diário (linhas)</h3>
-                    <canvas id="dailyChart" width="400" height="200"></canvas>
+            <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:center;">
+                <div style="flex:0 0 220px; text-align:center;">
+                    <h3 style="margin:6px 0; font-size:0.95rem">Porcentagem de cliques</h3>
+                    <div style="width:180px; height:180px; margin:0 auto; position:relative;">
+                        <canvas id="pieChart" width="180" height="180"></canvas>
+                        <div id="pie-total" style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);font-weight:700;color:inherit;font-size:0.95rem"></div>
+                    </div>
+                    <div style="font-size:0.85rem;color:rgba(255,255,255,0.8);">Pequeno resumo por dia</div>
                 </div>
-                <div style="width:320px; min-width:260px;">
-                    <h3>Porcentagem de cliques (pizza)</h3>
-                    <canvas id="pieChart" width="300" height="300"></canvas>
+                <div style="flex:1; min-width:220px;">
+                    <h3 style="margin:6px 0; font-size:0.95rem">Detalhes</h3>
+                    <div id="pie-legend" style="font-size:0.9rem; margin-top:8px"></div>
                 </div>
             </div>
         </div>
@@ -124,8 +128,12 @@
     </div>
 
     <script>
-        async function updateButton(id) {
-            const nome = document.getElementById(`name-${id}`).value;
+    <div class="scroll-fab" aria-hidden="false">
+        <button id="toTopBtn" class="scroll-btn" title="Ir ao topo">Topo</button>
+        <button id="toBottomBtn" class="scroll-btn" title="Ir ao fim">Fim</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
             const response = await fetch('/admin/update_button', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -152,6 +160,7 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script>
         // Inicializa data input com hoje
         document.addEventListener('DOMContentLoaded', () => {
@@ -176,28 +185,40 @@
                 downloadLink.download = `daily_summary_${date}.json`;
             }
 
-            // preparar dados para chart
+            // preparar dados para chart (apenas pizza)
             const labels = json.counts.map(c => c.nome);
             const values = json.counts.map(c => c.count);
-            const colors = labels.map((_,i) => `hsl(${(i*70)%360} 80% 60%)`);
+            const colors = labels.map((_,i) => `hsl(${(i*70)%360} 75% 55%)`);
 
-            // daily (linha/simple) chart — aqui usamos os valores do dia selecionado
-            const ctx = document.getElementById('dailyChart').getContext('2d');
-            if (dailyChartInstance) dailyChartInstance.destroy();
-            dailyChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: labels, datasets: [{ label: `Cliques em ${json.date}`, data: values, backgroundColor: colors }] },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            // pie chart
+            // pie chart (pequeno e informativo)
             const ctx2 = document.getElementById('pieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
             pieChartInstance = new Chart(ctx2, {
                 type: 'pie',
-                data: { labels: labels, datasets: [{ data: json.counts.map(c=>c.count), backgroundColor: colors }] },
-                options: { responsive: true, maintainAspectRatio: false }
+                data: { labels: labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: function(context){ const v = context.raw||0; const p = json.total>0?Math.round(v/json.total*100)+'%':'0%'; return context.label+': '+v+' ('+p+')'; } } }
+                    }
+                }
             });
+
+            // mostrar total no centro
+            const totalEl = document.getElementById('pie-total');
+            if (totalEl) totalEl.textContent = json.total + ' clicks';
+
+            // legend simples
+            const legend = document.getElementById('pie-legend');
+            if (legend) {
+                legend.innerHTML = labels.map((l,i)=>{
+                    const cnt = json.counts[i].count;
+                    const pct = json.counts[i].percent;
+                    return `<div style="display:flex;align-items:center;gap:8px;margin:6px 0"><span style="width:14px;height:14px;border-radius:4px;background:${colors[i]};display:inline-block"></span><strong style="width:120px;text-align:left;display:inline-block">${l}</strong><span style="color:var(--vermelho-primario)">${cnt}</span><span style="margin-left:6px;color:rgba(255,255,255,0.7)">(${pct}%)</span></div>`;
+                }).join('');
+            }
         }
     </script>
 </body>

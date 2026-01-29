@@ -70,6 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // fetch and apply stats
     fetchStats();
+    // attach scroll buttons if present
+    const toTop = document.getElementById('toTopBtn');
+    const toBottom = document.getElementById('toBottomBtn');
+    if (toTop) toTop.addEventListener('click', scrollToTop);
+    if (toBottom) toBottom.addEventListener('click', scrollToBottom);
 });
 
 async function fetchStats() {
@@ -90,4 +95,12 @@ async function fetchStats() {
     } catch (e) {
         console.error('Falha ao buscar estatísticas', e);
     }
+}
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function scrollToBottom() {
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
 }

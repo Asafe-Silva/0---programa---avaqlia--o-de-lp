@@ -201,3 +201,29 @@ body.light-mode .botoes button:hover {
     background: var(--vermelho-primario);
     color: var(--branco);
 }
+
+/* botões flutuantes de rolagem */
+.scroll-fab {
+    position: fixed;
+    right: 18px;
+    bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+}
+.scroll-btn {
+    background: var(--vermelho-primario);
+    color: white;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+.scroll-btn:hover { transform: translateY(-3px); }
+
+/* pequenas melhorias no admin legend e total */
+#pie-legend { max-height: 220px; overflow:auto; }
+#pie-total { color: var(--texto-dark); }

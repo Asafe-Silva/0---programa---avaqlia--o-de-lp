@@ -1,5 +1,9 @@
 Registo de Cliques com Data e Hora
 ==================================
+use me:
+- Página principal: http://127.0.0.1:5000/
+- Painel administrativo: http://127.0.0.1:5000/admin
+
 Descrição
 ---------
 Este projeto é uma aplicação web simples para registar cliques em botões. Cada clique é salvo em uma base de dados SQLite com as seguintes informações:

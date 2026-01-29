@@ -19,6 +19,11 @@
         <div id="counts" class="counts" aria-live="polite">Carregando contadores...</div>
         <div id="resultado"></div>
         <button id="toggleMode">Mudar Modo</button>
+        <!-- botões flutuantes para topo/fim -->
+        <div class="scroll-fab" aria-hidden="false">
+            <button id="toTopBtn" class="scroll-btn" title="Ir ao topo">Topo</button>
+            <button id="toBottomBtn" class="scroll-btn" title="Ir ao fim">Fim</button>
+        </div>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

@@ -227,3 +227,19 @@ body.light-mode .botoes button:hover {
 /* pequenas melhorias no admin legend e total */
 #pie-legend { max-height: 220px; overflow:auto; }
 #pie-total { color: var(--texto-dark); }
+
+/* botão de alternar tema no canto superior */
+.theme-toggle {
+    position: fixed;
+    right: 16px;
+    top: 12px;
+    z-index: 10000;
+    background: transparent;
+    color: var(--vermelho-primario);
+    border: 1.5px solid var(--vermelho-primario);
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.theme-toggle:hover { background: var(--vermelho-primario); color: var(--branco); }

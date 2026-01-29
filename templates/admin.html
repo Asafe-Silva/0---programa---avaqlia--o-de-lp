@@ -113,7 +113,6 @@
                     <h3 style="margin:6px 0; font-size:0.95rem">Porcentagem de cliques</h3>
                     <div style="width:180px; height:180px; margin:0 auto; position:relative;">
                         <canvas id="pieChart" width="180" height="180"></canvas>
-                        <div id="pie-total" style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);font-weight:700;color:inherit;font-size:0.95rem"></div>
                     </div>
                     <div style="font-size:0.85rem;color:rgba(255,255,255,0.8);">Pequeno resumo por dia</div>
                 </div>
@@ -124,40 +123,16 @@
             </div>
         </div>
 
-        <a href="/" id="toggleMode">Voltar para Home</a>
+        <a href="/" id="site-normal" class="export-btn" style="margin-top:18px; display:inline-block">Site Normal</a>
     </div>
-
-    <script>
+    <!-- botões flutuantes topo/fim -->
     <div class="scroll-fab" aria-hidden="false">
         <button id="toTopBtn" class="scroll-btn" title="Ir ao topo">Topo</button>
         <button id="toBottomBtn" class="scroll-btn" title="Ir ao fim">Fim</button>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-            const response = await fetch('/admin/update_button', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id, nome })
-            });
-            if (response.ok) {
-                alert('Nome do botão atualizado!');
-                location.reload();
-            }
-        }
 
-        async function addButton() {
-            const nome = document.getElementById('new-button-name').value.trim();
-            if (!nome) return alert('Informe um nome válido');
-            const res = await fetch('/admin/add_button', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nome})});
-            if (res.ok) { alert('Botão adicionado'); location.reload(); }
-        }
-
-        async function deleteButton(id) {
-            if (!confirm('Remover este botão?')) return;
-            const res = await fetch('/admin/delete_button', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({id})});
-            if (res.ok) { alert('Botão removido'); location.reload(); }
-        }
-    </script>
+    <!-- botão de tema no canto superior direito -->
+    <button id="themeToggle" class="theme-toggle" aria-label="Alternar tema">Modo</button>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
@@ -206,9 +181,7 @@
                 }
             });
 
-            // mostrar total no centro
-            const totalEl = document.getElementById('pie-total');
-            if (totalEl) totalEl.textContent = json.total + ' clicks';
+            // não mostramos texto central para manter visual limpo
 
             // legend simples
             const legend = document.getElementById('pie-legend');

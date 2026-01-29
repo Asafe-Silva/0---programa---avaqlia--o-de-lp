@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body class="dark-mode">
+    <!-- botão de tema no canto superior direito -->
+    <button id="themeToggle" class="theme-toggle" aria-label="Alternar tema">Modo</button>
     <div class="container">
         <h1>Registo de Cliques</h1>
         <div class="botoes">
@@ -18,7 +20,6 @@
         </div>
         <div id="counts" class="counts" aria-live="polite">Carregando contadores...</div>
         <div id="resultado"></div>
-        <button id="toggleMode">Mudar Modo</button>
         <!-- botões flutuantes para topo/fim -->
         <div class="scroll-fab" aria-hidden="false">
             <button id="toTopBtn" class="scroll-btn" title="Ir ao topo">Topo</button>

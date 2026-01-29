@@ -51,7 +51,7 @@ async function clicar(botao) {
 // Alternar modo claro/escuro
 // Alternar modo claro/escuro com persistência
 document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('toggleMode');
+    const btn = document.getElementById('themeToggle') || document.getElementById('toggleMode');
     const saved = localStorage.getItem('theme');
     if (saved === 'light') {
         document.body.classList.remove('dark-mode');
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.toggle('dark-mode');
             document.body.classList.toggle('light-mode');
             const novo = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
-            localStorage.setItem('theme', novo === 'dark' ? 'dark' : 'light');
+            localStorage.setItem('theme', novo);
             btn.textContent = document.body.classList.contains('dark-mode') ? 'Modo Claro' : 'Modo Escuro';
         });
     }
